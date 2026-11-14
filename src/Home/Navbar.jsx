@@ -61,12 +61,16 @@ function Navbar() {
           </div>
         </Link>
 
-        {/* زرار القايمة - بيظهر في الموبايل بس */}
         <button
-          className="navbar-toggler border-0 ms-auto"
+          className="navbar-toggler ms-auto"
           type="button"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.65)',
+            border: '1px solid rgba(255,255,255,0.35)',
+            borderRadius: '6px',
+          }}
         >
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -88,7 +92,6 @@ function Navbar() {
             <li className="nav-item">
               <Link className="nav-link" style={{ color: '#fff' }} to="/contact" onClick={close}>{t.contact}</Link>
             </li>
-            {/* زرار الحجز جوه القايمة في الموبايل */}
             <li className="nav-item d-lg-none">
               <Link to="/Cars" onClick={close} className="btn btn-outline-light rounded-1 px-3 py-2 text-uppercase" style={{ fontSize: '11px', letterSpacing: spacing('1px') }}>
                 {t.book}
@@ -97,7 +100,6 @@ function Navbar() {
           </ul>
         </div>
 
-        {/* زرار الحجز في اللابتوب بس */}
         <div className="d-none d-lg-flex align-items-center gap-2">
           <Link to="/Cars" className="btn btn-outline-light rounded-1 px-3 py-2 text-uppercase text-decoration-none" style={{ fontSize: '11px', letterSpacing: spacing('1px') }}>
             {t.book}

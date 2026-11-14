@@ -1,6 +1,3 @@
-
-
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -28,8 +25,9 @@ const css = `
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
   font-family: Arial, sans-serif;
   box-sizing: border-box;
   margin: 0;
@@ -167,8 +165,15 @@ const css = `
 @media (max-width: 560px) {
   .ap-content { padding-top: 110px; }
   .ap-btn-gold, .ap-btn-ghost { padding: 13px 18px; }
-  .ap-stat-value { font-size: 26px; }
-  .ap-stats { margin-bottom: 24px; gap: 22px; }
+  .ap-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .ap-stat-label { font-size: 9px; letter-spacing: 1px; }
+  .ap-stat-value { font-size: 24px; }
 }
 `;
 
@@ -176,7 +181,6 @@ export default function Apped() {
   const stopRef = useRef(null);
   const [revving, setRevving] = useState(false);
 
-  // يوقف الصوت لو خرجتي من الصفحة
   useEffect(() => {
     return () => {
       if (stopRef.current) stopRef.current();
@@ -250,7 +254,6 @@ export default function Apped() {
       <div className="ap-overlay"></div>
 
       <div className="ap-inner">
-        {/* Hero Section */}
         <div className="ap-content">
           <p className="ap-eyebrow">{t.eyebrow}</p>
 
@@ -271,7 +274,6 @@ export default function Apped() {
           </div>
         </div>
 
-        {/* Stats Footer */}
         <div className="ap-stats">
           {stats.map((s) => (
             <div key={s.label}>
