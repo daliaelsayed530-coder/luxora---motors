@@ -1,5 +1,7 @@
 
-import React from 'react';
+
+
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const t = {
@@ -9,6 +11,7 @@ const t = {
   desc: 'Discover elite performance, unmatched comfort, and timeless design. Your dream car awaits.',
   explore: 'EXPLORE INVENTORY →',
   watch: '▶ WATCH VIDEO',
+  stop: '■ STOP ENGINE',
   brands: 'PREMIUM BRANDS',
   models: 'LUXURY MODELS',
   clients: 'HAPPY CLIENTS',
@@ -27,16 +30,46 @@ const css = `
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url("/img/1.jpeg");
-  background-size: cover;
-  background-position: center right;
-  background-repeat: no-repeat;
   font-family: Arial, sans-serif;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   overflow: hidden;
   z-index: 999;
+  background: #000;
+}
+.ap-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.ap-bg-img {
+  position: absolute;
+  inset: 0;
+  background-image: url("/img/1.jpeg");
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  transform: scale(1.05);
+  transform-origin: 70% 60%;
+}
+.ap-bg.revving {
+  animation: apShake 0.12s infinite;
+}
+.ap-bg.revving .ap-bg-img {
+  animation: apDrive 4.5s ease-in-out forwards;
+}
+@keyframes apShake {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(-3px, 2px); }
+  50%      { transform: translate(3px, -2px); }
+  75%      { transform: translate(-2px, -3px); }
+}
+@keyframes apDrive {
+  0%   { transform: scale(1.05) translateX(0); filter: blur(0); }
+  60%  { transform: scale(1.4) translateX(-4%); filter: blur(1.5px); }
+  100% { transform: scale(1.05) translateX(0); filter: blur(0); }
 }
 .ap-overlay {
   position: absolute;
@@ -127,7 +160,7 @@ const css = `
 .ap-stat-value { color: #fff; font-size: 32px; font-family: serif; }
 
 @media (max-width: 900px) {
-  .ap-hero { background-position: 68% center; }
+  .ap-bg-img { background-position: 68% center; }
   .ap-content { padding-left: 24px; padding-right: 24px; max-width: 100%; }
   .ap-stats { margin-left: 24px; margin-right: 24px; gap: 30px; }
 }
@@ -140,10 +173,80 @@ const css = `
 `;
 
 export default function Apped() {
+  const stopRef = useRef(null);
+  const [revving, setRevving] = useState(false);
+
+  // يوقف الصوت لو خرجتي من الصفحة
+  useEffect(() => {
+    return () => {
+      if (stopRef.current) stopRef.current();
+    };
+  }, []);
+
+  const handleWatch = () => {
+    if (revving) {
+      if (stopRef.current) stopRef.current();
+      return;
+    }
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    const o1 = ctx.createOscillator();
+    const o2 = ctx.createOscillator();
+    o1.type = 'sawtooth';
+    o2.type = 'square';
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.3, now + 0.3);
+    gain.gain.setValueAtTime(0.3, now + 4);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
+
+    [[o1, 1], [o2, 0.5]].forEach(([o, m]) => {
+      o.frequency.setValueAtTime(50 * m, now);
+      o.frequency.exponentialRampToValueAtTime(200 * m, now + 1.2);
+      o.frequency.exponentialRampToValueAtTime(90 * m, now + 2);
+      o.frequency.exponentialRampToValueAtTime(260 * m, now + 3);
+      o.frequency.exponentialRampToValueAtTime(50 * m, now + 4.5);
+      o.connect(filter);
+    });
+
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    const stop = () => {
+      try { o1.stop(); o2.stop(); } catch (e) {}
+      try { ctx.close(); } catch (e) {}
+      stopRef.current = null;
+      setRevving(false);
+    };
+
+    stopRef.current = stop;
+    o1.onended = stop;
+
+    o1.start(now);
+    o2.start(now);
+    o1.stop(now + 4.5);
+    o2.stop(now + 4.5);
+
+    setRevving(true);
+  };
+
   return (
     <div className="ap-hero">
       <style>{css}</style>
 
+      <div className={`ap-bg ${revving ? 'revving' : ''}`}>
+        <div className="ap-bg-img"></div>
+      </div>
       <div className="ap-overlay"></div>
 
       <div className="ap-inner">
@@ -162,8 +265,8 @@ export default function Apped() {
             <Link to="/cars" className="ap-btn-gold">
               {t.explore}
             </Link>
-            <button type="button" className="ap-btn-ghost">
-              {t.watch}
+            <button type="button" className="ap-btn-ghost" onClick={handleWatch}>
+              {revving ? t.stop : t.watch}
             </button>
           </div>
         </div>

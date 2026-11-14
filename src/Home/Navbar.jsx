@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from './LanguageContext';
 
@@ -25,12 +25,14 @@ function Navbar() {
   const { lang } = useLang();
   const t = text[lang];
   const spacing = (v) => (lang === 'ar' ? '0' : v);
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
 
   return (
     <nav
       className="navbar navbar-expand-lg navbar-dark py-3"
       style={{
-        backgroundColor: 'transparent',
+        backgroundColor: open ? 'rgba(0,0,0,0.92)' : 'transparent',
         border: 'none',
         boxShadow: 'none',
         position: 'fixed',
@@ -41,7 +43,7 @@ function Navbar() {
       }}
     >
       <div className="container">
-        <Link className="navbar-brand d-flex align-items-center gap-2 text-decoration-none" to="/">
+        <Link className="navbar-brand d-flex align-items-center gap-2 text-decoration-none" to="/" onClick={close}>
           <div style={{
             width: '28px',
             height: '28px',
@@ -59,27 +61,44 @@ function Navbar() {
           </div>
         </Link>
 
-        <div className="collapse navbar-collapse justify-content-center">
-          <ul className="navbar-nav gap-4" style={{ fontSize: '12px', letterSpacing: spacing('1.5px'), fontWeight: '600' }}>
+        {/* زرار القايمة - بيظهر في الموبايل بس */}
+        <button
+          className="navbar-toggler border-0 ms-auto"
+          type="button"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className={`collapse navbar-collapse justify-content-center ${open ? 'show' : ''}`}>
+          <ul className="navbar-nav gap-4 text-center py-3 py-lg-0" style={{ fontSize: '12px', letterSpacing: spacing('1.5px'), fontWeight: '600' }}>
             <li className="nav-item">
-              <Link className="nav-link active" style={{ color: '#fff' }} to="/">{t.home}</Link>
+              <Link className="nav-link active" style={{ color: '#fff' }} to="/" onClick={close}>{t.home}</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" style={{ color: '#fff' }} to="/Cars">{t.inventory}</Link>
+              <Link className="nav-link" style={{ color: '#fff' }} to="/Cars" onClick={close}>{t.inventory}</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" style={{ color: '#fff' }} to="/services">{t.services}</Link>
+              <Link className="nav-link" style={{ color: '#fff' }} to="/services" onClick={close}>{t.services}</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" style={{ color: '#fff' }} to="/about">{t.about}</Link>
+              <Link className="nav-link" style={{ color: '#fff' }} to="/about" onClick={close}>{t.about}</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" style={{ color: '#fff' }} to="/contact">{t.contact}</Link>
+              <Link className="nav-link" style={{ color: '#fff' }} to="/contact" onClick={close}>{t.contact}</Link>
+            </li>
+            {/* زرار الحجز جوه القايمة في الموبايل */}
+            <li className="nav-item d-lg-none">
+              <Link to="/Cars" onClick={close} className="btn btn-outline-light rounded-1 px-3 py-2 text-uppercase" style={{ fontSize: '11px', letterSpacing: spacing('1px') }}>
+                {t.book}
+              </Link>
             </li>
           </ul>
         </div>
 
-        <div className="d-flex align-items-center gap-2">
+        {/* زرار الحجز في اللابتوب بس */}
+        <div className="d-none d-lg-flex align-items-center gap-2">
           <Link to="/Cars" className="btn btn-outline-light rounded-1 px-3 py-2 text-uppercase text-decoration-none" style={{ fontSize: '11px', letterSpacing: spacing('1px') }}>
             {t.book}
           </Link>
