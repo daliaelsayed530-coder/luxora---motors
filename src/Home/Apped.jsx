@@ -172,7 +172,7 @@ const css = `
     margin-bottom: 24px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  .ap-stat-label { font-size: 9px; letter-spacing: 1px; }
+  .ap-stat-label { font-size: 9px; letter-spacing: 1px; min-height: 2.8em; }
   .ap-stat-value { font-size: 24px; }
 }
 `;
